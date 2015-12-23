@@ -16,9 +16,9 @@ import java.util.stream.Stream;
 
 public class MainFrame extends JFrame {
 
-    private static final int DEFAULT_BIT_MAP_WIDTH = 200;
-    private static final int DEFAULT_BIT_MAP_HEIGHT = 200;
-    private static final int DEFAULT_SCALE = 3;
+    private static final int DEFAULT_BIT_MAP_WIDTH = 300;
+    private static final int DEFAULT_BIT_MAP_HEIGHT = 300;
+    private static final int DEFAULT_SCALE = 2;
 
     private Random rng = new Random();
 
