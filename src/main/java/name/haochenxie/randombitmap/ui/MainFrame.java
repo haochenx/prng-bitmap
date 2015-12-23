@@ -1,13 +1,14 @@
 package name.haochenxie.randombitmap.ui;
 
+import org.apache.commons.io.IOUtils;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -160,7 +161,20 @@ public class MainFrame extends JFrame {
             handleReseed();
         }
 
+        {
+            try {
+                InputStream stream = getClass().getResource("/prng_examples/xorshift.js").openStream();
+                loadCodeSnippet(stream);
+            } catch (NullPointerException | IOException ex) {
+                showWarning(ex);
+            }
+        }
+
         pack();
+    }
+
+    private void loadCodeSnippet(InputStream input) throws IOException {
+        txtCode.setText(IOUtils.toString(input));
     }
 
     private void handleSaveFile() {
@@ -185,7 +199,7 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void showWarning(IOException e) {
+    private void showWarning(Throwable e) {
         // TODO
         e.printStackTrace();
     }
