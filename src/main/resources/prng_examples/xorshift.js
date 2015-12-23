@@ -57,9 +57,9 @@ function xorshiftFactory() {
   return xorshift;
 }
 
-// You should call the global function submitRng(rng) to sumbit your
-// PRNG algorithm
-submitRng(xorshiftFactory());
+// You should call the method api.submitRng(rng) to sumbit your PRNG
+// algorithm
+api.submitRng(xorshiftFactory());
 
 /*
  * The semantics of submitRng(rng) could be thought as:

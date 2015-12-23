@@ -1,8 +1,10 @@
 package name.haochenxie.randombitmap.ui;
 
+import name.haochenxie.randombitmap.JavaScriptPRNGEngine;
 import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
+import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -77,7 +79,7 @@ public class MainFrame extends JFrame {
         }
 
         { // for codePane
-            codePane.setBorder(BorderFactory.createTitledBorder("PRNG Code (JavaScript)"));
+            codePane.setBorder(BorderFactory.createTitledBorder("PRNG Algorithm Code (JavaScript)"));
             codePane.setLayout(new BorderLayout());
 
             txtCode = new JTextArea();
@@ -213,19 +215,22 @@ public class MainFrame extends JFrame {
         int width = Integer.parseInt(txtWidth.getText());
         int height = Integer.parseInt(txtHeight.getText());
         int scale = Integer.parseInt(txtScale.getText());
+        String code = txtCode.getText();
 
         randomBitmap.setSizeScale(width, height, scale);
 
-        // TODO
-        Double[] seeds = Stream.of(txtSeeds)
+        double[] seeds = Stream.of(txtSeeds)
                 .map(txt -> txt.getText())
-                .map(str -> Double.parseDouble(str))
-                .toArray(Double[]::new);
+                .mapToDouble(str -> Double.parseDouble(str))
+                .toArray();
+        JavaScriptPRNGEngine engine = new JavaScriptPRNGEngine(code);
 
-        byte[] buff = new byte[randomBitmap.getRequiredBytes()];
-        rng.nextBytes(buff);
-
-        randomBitmap.setData(buff);
+        try {
+            byte[] data = engine.getRandomBytes(randomBitmap.getRequiredBytes(), seeds);
+            randomBitmap.setData(data);
+        } catch (ScriptException | NoSuchMethodException ex) {
+            showWarning(ex);
+        }
     }
 
     private void handleReseed() {
