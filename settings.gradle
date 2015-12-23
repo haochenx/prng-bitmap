@@ -16,4 +16,4 @@ include 'api'
 include 'services:webservice'
 */
 
-rootProject.name = 'random-bitmap'
+rootProject.name = 'prng-bitmap'
