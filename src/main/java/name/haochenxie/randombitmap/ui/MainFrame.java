@@ -6,6 +6,12 @@ import org.apache.commons.io.IOUtils;
 import javax.imageio.ImageIO;
 import javax.script.ScriptException;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -29,9 +35,20 @@ public class MainFrame extends JFrame {
     private JTextField txtHeight;
     private JTextField txtScale;
     private JTextField[] txtSeeds;
+    private JTextPane stxtLog;
 
     public MainFrame() {
         init();
+    }
+
+    private static enum LogStyles {
+        NORMAL(Color.WHITE), WARNING(Color.ORANGE), ERROR(Color.PINK);
+
+        public final Color bgColor;
+
+        private LogStyles(Color bgColor) {
+            this.bgColor = bgColor;
+        }
     }
 
     private void init() {
@@ -103,6 +120,32 @@ public class MainFrame extends JFrame {
                 cmbExamples.addActionListener($ -> handleLoadExample((String) cmbExamples.getSelectedItem()));
                 toolboxPane.add(cmbExamples);
             }
+        }
+
+        { // for logPane
+            stxtLog = new JTextPane();
+            JScrollPane scrollPane = new JScrollPane(stxtLog);
+            stxtLog.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    JScrollBar vbar = scrollPane.getVerticalScrollBar();
+                    vbar.setValue(vbar.getMaximum());
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) { }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) { }
+            });
+            logPane.add(scrollPane, BorderLayout.CENTER);
+
+            for (LogStyles style : LogStyles.values()) {
+                Style s = stxtLog.addStyle(style.name(), null);
+                StyleConstants.setBackground(s, style.bgColor);
+            }
+
+            logPane.setPreferredSize(new Dimension(0, 200));
         }
 
         { // for paramPane
@@ -187,8 +230,8 @@ public class MainFrame extends JFrame {
         try {
             InputStream stream = getClass().getResource("/prng_examples/" + example).openStream();
             loadCodeSnippet(stream);
-        } catch (NullPointerException | IOException ex) {
-            showWarning(ex);
+        } catch (NullPointerException | IOException e) {
+            log(e, LogStyles.ERROR);
         }
     }
 
@@ -211,21 +254,27 @@ public class MainFrame extends JFrame {
                 BufferedImage img = randomBitmap.createImage();
                 ImageIO.write(img, "PNG", file);
             } catch (IOException e) {
-                showWarning(e);
+                log(e, LogStyles.ERROR);
             }
         } else {
-            log("File save cancelled");
+            log("File save cancelled", LogStyles.WARNING);
         }
     }
 
-    private void showWarning(Throwable e) {
-        // TODO
+    private void log(Throwable e, LogStyles style) {
+        log(e.getMessage(), style);
         e.printStackTrace();
     }
 
-    private void log(String msg) {
-        // TODO
+    private void log(String msg, LogStyles style) {
         System.out.println(msg);
+
+        try {
+            StyledDocument doc = stxtLog.getStyledDocument();
+            doc.insertString(doc.getLength(), msg + "\n", doc.getStyle(style.name()));
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void handleGenerate() {
@@ -246,7 +295,7 @@ public class MainFrame extends JFrame {
             byte[] data = engine.getRandomBytes(randomBitmap.getRequiredBytes(), seeds);
             randomBitmap.setData(data);
         } catch (ScriptException | NoSuchMethodException ex) {
-            showWarning(ex);
+            log(ex, LogStyles.ERROR);
         }
     }
 
