@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     private static final int DEFAULT_BIT_MAP_WIDTH = 300;
     private static final int DEFAULT_BIT_MAP_HEIGHT = 300;
     private static final int DEFAULT_SCALE = 2;
+    public static final String[] EXAMPLE_LIST = {"xorshift.js", "lcg.js"};
 
     private Random rng = new Random();
 
@@ -82,11 +83,26 @@ public class MainFrame extends JFrame {
             codePane.setBorder(BorderFactory.createTitledBorder("PRNG Algorithm Code (JavaScript)"));
             codePane.setLayout(new BorderLayout());
 
-            txtCode = new JTextArea();
-            txtCode.setFont(new Font("Consolas", Font.PLAIN, 16));
-            txtCode.setColumns(72);
-            txtCode.setRows(40);
-            codePane.add(new JScrollPane(txtCode), BorderLayout.CENTER);
+            {
+                txtCode = new JTextArea();
+                txtCode.setFont(new Font("Consolas", Font.PLAIN, 16));
+                txtCode.setColumns(72);
+                txtCode.setRows(40);
+                codePane.add(new JScrollPane(txtCode), BorderLayout.CENTER);
+            }
+
+            {
+                JPanel toolboxPane = new JPanel();
+                toolboxPane.setLayout(new BoxLayout(toolboxPane, BoxLayout.X_AXIS));
+                codePane.add(toolboxPane, BorderLayout.NORTH);
+
+                String[] examples = EXAMPLE_LIST;
+
+                toolboxPane.add(new JLabel("Example: "));
+                JComboBox<String> cmbExamples = new JComboBox<>(examples);
+                cmbExamples.addActionListener($ -> handleLoadExample((String) cmbExamples.getSelectedItem()));
+                toolboxPane.add(cmbExamples);
+            }
         }
 
         { // for paramPane
@@ -163,16 +179,17 @@ public class MainFrame extends JFrame {
             handleReseed();
         }
 
-        {
-            try {
-                InputStream stream = getClass().getResource("/prng_examples/xorshift.js").openStream();
-                loadCodeSnippet(stream);
-            } catch (NullPointerException | IOException ex) {
-                showWarning(ex);
-            }
-        }
-
+        handleLoadExample(EXAMPLE_LIST[0]);
         pack();
+    }
+
+    private void handleLoadExample(String example) {
+        try {
+            InputStream stream = getClass().getResource("/prng_examples/" + example).openStream();
+            loadCodeSnippet(stream);
+        } catch (NullPointerException | IOException ex) {
+            showWarning(ex);
+        }
     }
 
     private void loadCodeSnippet(InputStream input) throws IOException {
