@@ -189,10 +189,15 @@ public class MainFrame extends JFrame {
 
             JButton btnReseed = new JButton("Reseed");
             JButton btnGenerate = new JButton("Generate Bitmap");
+            JButton btnSuperGenerate = new JButton("Reseed & Generate Bitmap");
 
             {
                 btnReseed.addActionListener($ -> handleReseed());
                 btnGenerate.addActionListener($ -> handleGenerate());
+                btnSuperGenerate.addActionListener($ -> {
+                    handleReseed();
+                    handleGenerate();
+                });
             }
 
             layout.setHorizontalGroup(layout.createSequentialGroup()
@@ -208,7 +213,8 @@ public class MainFrame extends JFrame {
                             .addComponent(paneSeeds)
                             .addGroup(layout.createSequentialGroup()
                                     .addComponent(btnReseed)
-                                    .addComponent(btnGenerate))));
+                                    .addComponent(btnGenerate)
+                                    .addComponent(btnSuperGenerate))));
             layout.setVerticalGroup(layout.createSequentialGroup()
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lblSize)
@@ -224,7 +230,8 @@ public class MainFrame extends JFrame {
                             .addComponent(paneSeeds))
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(btnReseed)
-                            .addComponent(btnGenerate)));
+                            .addComponent(btnGenerate)
+                            .addComponent(btnSuperGenerate)));
         }
 
         {
