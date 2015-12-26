@@ -25,6 +25,8 @@ public class MainFrame extends JFrame {
     private static final int DEFAULT_BIT_MAP_WIDTH = 300;
     private static final int DEFAULT_BIT_MAP_HEIGHT = 300;
     private static final int DEFAULT_SCALE = 2;
+    private static final BitmapType DEFAULT_BIT_MAP_TYPE = BitmapType.BINARY;
+
     public static final String[] EXAMPLE_LIST = {"xorshift.js", "lcg.js"};
 
     private Random rng = new Random();
@@ -35,6 +37,7 @@ public class MainFrame extends JFrame {
     private JTextField txtHeight;
     private JTextField txtScale;
     private JTextField[] txtSeeds;
+    private JComboBox<BitmapType> cmbType;
     private JTextPane stxtLog;
 
     public MainFrame() {
@@ -80,7 +83,8 @@ public class MainFrame extends JFrame {
             imagePane.setLayout(new BorderLayout());
 
             {
-                randomBitmap = new RandomBitmapPanel(DEFAULT_BIT_MAP_WIDTH, DEFAULT_BIT_MAP_HEIGHT, DEFAULT_SCALE);
+                randomBitmap = new RandomBitmapPanel(
+                        DEFAULT_BIT_MAP_WIDTH, DEFAULT_BIT_MAP_HEIGHT, DEFAULT_SCALE, DEFAULT_BIT_MAP_TYPE);
                 imagePane.add(new JScrollPane(randomBitmap), BorderLayout.CENTER);
             }
 
@@ -180,6 +184,9 @@ public class MainFrame extends JFrame {
                 }
             }
 
+            JLabel lblType = new JLabel("Bitmap Type");
+            cmbType = new JComboBox<>(BitmapType.values());
+
             JButton btnReseed = new JButton("Reseed");
             JButton btnGenerate = new JButton("Generate Bitmap");
 
@@ -192,10 +199,12 @@ public class MainFrame extends JFrame {
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                             .addComponent(lblSize)
                             .addComponent(lblScale)
+                            .addComponent(lblType)
                             .addComponent(lblSeeds))
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                             .addComponent(paneSize)
                             .addComponent(txtScale)
+                            .addComponent(cmbType)
                             .addComponent(paneSeeds)
                             .addGroup(layout.createSequentialGroup()
                                     .addComponent(btnReseed)
@@ -207,6 +216,9 @@ public class MainFrame extends JFrame {
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(lblScale)
                             .addComponent(txtScale))
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblType)
+                            .addComponent(cmbType))
                     .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                             .addComponent(lblSeeds)
                             .addComponent(paneSeeds))
@@ -219,6 +231,7 @@ public class MainFrame extends JFrame {
             txtWidth.setText(Integer.toString(DEFAULT_BIT_MAP_WIDTH));
             txtHeight.setText(Integer.toString(DEFAULT_BIT_MAP_HEIGHT));
             txtScale.setText(Integer.toString(DEFAULT_SCALE));
+            cmbType.setSelectedItem(DEFAULT_BIT_MAP_TYPE);
             handleReseed();
         }
 
@@ -281,8 +294,10 @@ public class MainFrame extends JFrame {
         int width = Integer.parseInt(txtWidth.getText());
         int height = Integer.parseInt(txtHeight.getText());
         int scale = Integer.parseInt(txtScale.getText());
+        BitmapType type = (BitmapType) cmbType.getSelectedItem();
         String code = txtCode.getText();
 
+        randomBitmap.setType(type);
         randomBitmap.setSizeScale(width, height, scale);
 
         double[] seeds = Stream.of(txtSeeds)

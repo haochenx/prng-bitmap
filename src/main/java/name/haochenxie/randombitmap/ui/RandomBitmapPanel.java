@@ -19,14 +19,18 @@ public class RandomBitmapPanel extends JPanel {
     private int bitMapHeight;
     private int scale;
 
+    private BitmapType type;
+
     private byte[] data;
 
-    public RandomBitmapPanel(int bitMapWidth, int bitMapHeight, int scale) {
+    public RandomBitmapPanel(int bitMapWidth, int bitMapHeight, int scale, BitmapType type) {
         this.bitMapWidth = bitMapWidth;
         this.bitMapHeight = bitMapHeight;
         this.scale = scale;
+        this.type = type;
     }
 
+    // TODO improve performance, probably by caching
     @Override
     public void paintComponent(Graphics g0) {
         super.paintComponent(g0);
@@ -43,13 +47,52 @@ public class RandomBitmapPanel extends JPanel {
         g.fillRect(-PREFERRED_PADDING / 2, -PREFERRED_PADDING / 2, w + PREFERRED_PADDING, h + PREFERRED_PADDING);
 
         if (isDataValid()) {
-            paintBinaryBitmap(g);
+            switch (type) {
+                case BINARY:
+                    paintBinaryBitmap(g);
+                    break;
+                case RGB:
+                    paintRGBBitmap(g);
+                    break;
+                case GRAY_SCALE:
+                    paintGrayScaleBitmap(g);
+                    break;
+                default:
+                    paintNA(g);
+            }
         } else {
             paintNA(g);
         }
     }
 
-    // TODO improve performance, probably by caching
+    private void paintGrayScaleBitmap(Graphics g0) {
+        Graphics g = g0.create();
+
+        for (int i = 0; i < bitMapWidth * bitMapHeight; i++) {
+            int lightness = (int) data[i] & 0xFF;
+            g.setColor(new Color(lightness, lightness, lightness));
+
+            int x = i % bitMapWidth;
+            int y = i / bitMapWidth;
+            g.fillRect(x * scale, y * scale, scale, scale);
+        }
+    }
+
+    private void paintRGBBitmap(Graphics g0) {
+        Graphics g = g0.create();
+
+        for (int i = 0; i < bitMapWidth * bitMapHeight; i++) {
+            g.setColor(new Color(
+                    (int) data[i * 3 + 0] & 0xFF,
+                    (int) data[i * 3 + 1] & 0xFF,
+                    (int) data[i * 3 + 2] & 0xFF));
+
+            int x = i % bitMapWidth;
+            int y = i / bitMapWidth;
+            g.fillRect(x * scale, y * scale, scale, scale);
+        }
+    }
+
     private void paintBinaryBitmap(Graphics g0) {
         Graphics g = g0.create();
 
@@ -102,7 +145,16 @@ public class RandomBitmapPanel extends JPanel {
     }
 
     public int getRequiredBytes() {
-        return (bitMapWidth * bitMapHeight + 7) / 8;
+        switch (type) {
+            case BINARY:
+                return (bitMapWidth * bitMapHeight + 7) / 8;
+            case RGB:
+                return (bitMapWidth * bitMapHeight) * 3;
+            case GRAY_SCALE:
+                return bitMapWidth * bitMapHeight;
+            default:
+                throw new IllegalArgumentException("wait, what? i don't know the type you passed in");
+        }
     }
 
     public void setData(byte[] data) {
@@ -123,4 +175,12 @@ public class RandomBitmapPanel extends JPanel {
         revalidate();
     }
 
+    public BitmapType getType() {
+        return type;
+    }
+
+    public void setType(BitmapType type) {
+        this.type = type;
+        repaint();
+    }
 }
