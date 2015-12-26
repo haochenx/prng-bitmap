@@ -47,10 +47,10 @@ function xorshiftFactory() {
     // to use all 4 seeds
     init : function (seed1, seed2, seed3, seed4) {
       with(this) {
-        x = (seed1 *= 1e15) & 0x1FFF;
-        y = (seed2 *= 1e15) & 0x1FFF;
-        z = (seed3 *= 1e15) & 0x1FFF;
-        w = (seed4 *= 1e15) & 0x1FFF;
+        x = (seed1 *= 1e15) & 0xFFFFFFFF;
+        y = (seed2 *= 1e15) & 0xFFFFFFFF;
+        z = (seed3 *= 1e15) & 0xFFFFFFFF;
+        w = (seed4 *= 1e15) & 0xFFFFFFFF;
       }
     }
   }
