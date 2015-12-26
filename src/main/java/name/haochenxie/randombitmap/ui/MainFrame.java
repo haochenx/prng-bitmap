@@ -27,7 +27,7 @@ public class MainFrame extends JFrame {
     private static final int DEFAULT_SCALE = 2;
     private static final BitmapType DEFAULT_BIT_MAP_TYPE = BitmapType.BINARY;
 
-    public static final String[] EXAMPLE_LIST = {"xorshift.js", "lcg.js"};
+    public static final String[] EXAMPLE_LIST = {"xorshift.js", "lcg.js", "javasrng.js"};
 
     private Random rng = new Random();
 
@@ -309,7 +309,7 @@ public class MainFrame extends JFrame {
         try {
             byte[] data = engine.getRandomBytes(randomBitmap.getRequiredBytes(), seeds);
             randomBitmap.setData(data);
-        } catch (ScriptException | NoSuchMethodException ex) {
+        } catch (Throwable ex) {
             log(ex, LogStyles.ERROR);
         }
     }
